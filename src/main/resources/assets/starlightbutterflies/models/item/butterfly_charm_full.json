@@ -1,0 +1,95 @@
+{
+  "parent": "minecraft:item/generated",
+  "overrides": [
+
+    {
+      "model": "starlightbutterflies:item/charm/10",
+      "predicate": {
+        "damaged": 0
+      }
+    },
+
+    {
+      "model": "starlightbutterflies:item/charm/9",
+      "predicate": {
+        "damaged": 1
+      }
+    },
+
+    {
+      "model": "starlightbutterflies:item/charm/8",
+      "predicate": {
+        "damaged": 1,
+        "damage": 0.1
+      }
+    },
+
+{
+      "model": "starlightbutterflies:item/charm/7",
+      "predicate": {
+        "damaged": 1,
+        "damage": 0.2
+      }
+    },
+
+{
+      "model": "starlightbutterflies:item/charm/6",
+      "predicate": {
+        "damaged": 1,
+        "damage": 0.3
+      }
+    },
+
+{
+      "model": "starlightbutterflies:item/charm/5",
+      "predicate": {
+        "damaged": 1,
+        "damage": 0.4
+      }
+    },
+
+{
+      "model": "starlightbutterflies:item/charm/4",
+      "predicate": {
+        "damaged": 1,
+        "damage": 0.5
+      }
+    },
+
+{
+      "model": "starlightbutterflies:item/charm/3",
+      "predicate": {
+        "damaged": 1,
+        "damage": 0.6
+      }
+    },
+
+{
+      "model": "starlightbutterflies:item/charm/2",
+      "predicate": {
+        "damaged": 1,
+        "damage": 0.7
+      }
+    },
+
+    {
+      "model": "starlightbutterflies:item/charm/1",
+      "predicate": {
+        "damaged": 1,
+        "damage": 0.8
+      }
+    },
+
+    {
+      "model": "starlightbutterflies:item/charm/0",
+      "predicate": {
+        "damaged": 1,
+        "damage": 0.9
+      }
+    }
+
+  ],
+    "textures": {
+      "layer0": "starlightbutterflies:item/butterfly_charm_empty"
+    }
+}

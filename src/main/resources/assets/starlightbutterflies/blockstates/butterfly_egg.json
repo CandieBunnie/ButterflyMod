@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "hatch=0": {
+      "model": "starlightbutterflies:block/butterfly_egg_not_cracked"
+    },
+    "hatch=1": {
+      "model": "starlightbutterflies:block/butterfly_egg_slightly_cracked"
+    },
+    "hatch=2": {
+      "model": "starlightbutterflies:block/butterfly_egg_very_cracked"
+    }
+  }
+}

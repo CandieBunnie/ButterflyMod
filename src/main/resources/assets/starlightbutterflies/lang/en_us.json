@@ -1,0 +1,15 @@
+{
+  "block.starlightbutterflies.butterfly_egg": "Butterfly Egg",
+  "block.starlightbutterflies.amber": "Amber",
+  "block.starlightbutterflies.egg_in_amber": "Butterfly Egg in Amber",
+  "block.starlightbutterflies.egg_in_ice": "Butterfly Egg in Ice",
+
+  "item.starlightbutterflies.butterfly_charm": "Butterfly Charm",
+  "item.starlightbutterflies.butterfly_charm_full": "Butterfly Charm",
+  "item.starlightbutterflies.wing_poultice": "Wing Poultice",
+  "item.starlightbutterflies.butterfly_spawn_egg": "Butterfly Spawn Egg",
+  "item.starlightbutterflies.butterfly_larva_spawn_egg": "Butterfly Larva Spawn Egg",
+
+  "entity.starlightbutterflies.butterfly": "Butterfly",
+  "entity.starlightbutterflies.larva": "Butterfly Larva"
+}

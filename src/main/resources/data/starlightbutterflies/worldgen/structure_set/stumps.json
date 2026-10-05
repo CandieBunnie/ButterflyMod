@@ -1,0 +1,38 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 10152319,
+    "separation": 8,
+    "spacing": 16
+  },
+  "structures": [
+    {
+      "structure": "starlightbutterflies:oak_stump",
+      "weight": 1
+    },
+    {
+      "structure": "starlightbutterflies:birch_stump",
+      "weight": 1
+    },
+    {
+      "structure": "starlightbutterflies:spruce_stump",
+      "weight": 1
+    },
+    {
+      "structure": "starlightbutterflies:jungle_stump",
+      "weight": 1
+    },
+    {
+      "structure": "starlightbutterflies:dark_oak_stump",
+      "weight": 1
+    },
+    {
+      "structure": "starlightbutterflies:cherry_stump",
+      "weight": 1
+    },
+    {
+      "structure": "starlightbutterflies:frozen_stump",
+      "weight": 1
+    }
+  ]
+}

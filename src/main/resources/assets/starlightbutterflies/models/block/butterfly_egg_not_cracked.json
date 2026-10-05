@@ -1,0 +1,6 @@
+{
+  "parent": "starlightbutterflies:block/butterfly_egg",
+  "textures": {
+    "all": "starlightbutterflies:block/butterfly_egg_not_cracked"
+  }
+}

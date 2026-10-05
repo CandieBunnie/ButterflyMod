@@ -1,0 +1,6 @@
+{
+  "parent": "starlightbutterflies:block/egg_storage_base",
+  "textures": {
+    "amber": "minecraft:block/ice"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "parent": "block/block",
+  "render_type": "translucent",
+  "textures": {
+    "amber": "starlightbutterflies:block/amber",
+    "particle": "#amber"
+  },
+  "elements": [
+    {   "from": [ 0, 0, 0 ],
+      "to": [ 16, 16, 16 ],
+      "faces": {
+        "down":  { "texture": "#amber", "cullface": "down" },
+        "up":    { "texture": "#amber", "cullface": "up" },
+        "north": { "texture": "#amber", "cullface": "north" },
+        "south": { "texture": "#amber", "cullface": "south" },
+        "west":  { "texture": "#amber", "cullface": "west" },
+        "east":  { "texture": "#amber", "cullface": "east" }
+      }
+    }
+  ]
+}

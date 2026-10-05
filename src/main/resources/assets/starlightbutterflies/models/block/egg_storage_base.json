@@ -1,0 +1,33 @@
+{
+  "parent": "block/block",
+  "render_type": "translucent",
+  "textures": {
+    "egg": "starlightbutterflies:block/butterfly_egg_not_cracked",
+    "particle": "#amber"
+  },
+  "elements": [
+    {
+      "from": [4, 2, 4],
+      "to": [12, 14, 12],
+      "faces": {
+        "north": {"uv": [8, 0, 16, 12], "texture": "#egg"},
+        "east": {"uv": [8, 0, 16, 12], "texture": "#egg"},
+        "south": {"uv": [8, 0, 16, 12], "texture": "#egg"},
+        "west": {"uv": [8, 0, 16, 12], "texture": "#egg"},
+        "up": {"uv": [0, 0, 8, 8], "texture": "#egg"},
+        "down": {"uv": [0, 8, 8, 16], "texture": "#egg"}
+      }
+    },
+    {   "from": [ 0, 0, 0 ],
+      "to": [ 16, 16, 16 ],
+      "faces": {
+        "down":  { "texture": "#amber", "cullface": "down" },
+        "up":    { "texture": "#amber", "cullface": "up" },
+        "north": { "texture": "#amber", "cullface": "north" },
+        "south": { "texture": "#amber", "cullface": "south" },
+        "west":  { "texture": "#amber", "cullface": "west" },
+        "east":  { "texture": "#amber", "cullface": "east" }
+      }
+    }
+  ]
+}

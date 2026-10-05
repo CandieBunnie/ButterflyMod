@@ -1,0 +1,6 @@
+{
+  "parent": "starlightbutterflies:item/butterfly_charm_full",
+    "textures": {
+      "layer1": "starlightbutterflies:item/charm/1/2"
+    }
+}
