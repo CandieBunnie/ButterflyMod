@@ -216,7 +216,7 @@ public class TextureLayer {
         return strings[0]+strings[1]+strings[2];
     }
 
-    // all below this is from horse mod as I have no clue what I'm doing with this, really
+    // all below this is copied from sekelsta's "realistic horse genetics" mod
     private static void setRGBA(NativeImage image, int x, int y, float r, float g, float b, float a) {
         int ir = clamp((int)(r * 255));
         int ig = clamp((int)(g * 255));
