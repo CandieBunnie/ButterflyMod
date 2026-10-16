@@ -10,10 +10,10 @@
             "item": "minecraft:amethyst_shard"
         },
         "G": {
-            "item": "minecraft:gold_nugget"
+            "item": "minecraft:honeycomb"
         },
         "H": {
-            "item": "minecraft:honeycomb"
+            "item": "minecraft:emerald"
         }
     },
     "result": {

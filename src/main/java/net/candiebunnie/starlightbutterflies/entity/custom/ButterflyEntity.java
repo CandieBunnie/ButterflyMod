@@ -13,6 +13,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -39,6 +40,7 @@ public class ButterflyEntity extends AbstractButterflyGenetics implements Player
 
     protected static final EntityDataAccessor<Float> WINGZROTATION = SynchedEntityData.<Float>defineId(ButterflyEntity.class, EntityDataSerializers.FLOAT);
     protected static final EntityDataAccessor<Integer> WINGRESETTIMEOUT = SynchedEntityData.<Integer>defineId(ButterflyEntity.class, EntityDataSerializers.INT);
+    protected static final EntityDataAccessor<Integer> WINGDAMAGETIMEOUT = SynchedEntityData.<Integer>defineId(ButterflyEntity.class, EntityDataSerializers.INT);
 
     protected float playerJumpPendingScale;
     public final AnimationState idleAnimationState = new AnimationState();
@@ -97,18 +99,21 @@ public class ButterflyEntity extends AbstractButterflyGenetics implements Player
         super.defineSynchedData();
         this.entityData.define(WINGZROTATION, 10F);
         this.entityData.define(WINGRESETTIMEOUT, 0);
+        this.entityData.define(WINGDAMAGETIMEOUT, 20);
     }
 
     public void addAdditionalSaveData(CompoundTag compoundTag) {
         super.addAdditionalSaveData(compoundTag);
         compoundTag.putFloat(StarlightButterflies.MOD_ID + ".rotation", this.entityData.get(WINGZROTATION));
         compoundTag.putInt(StarlightButterflies.MOD_ID + ".timeout", this.entityData.get(WINGRESETTIMEOUT));
+        compoundTag.putInt(StarlightButterflies.MOD_ID + ".damage_cooldown", this.entityData.get(WINGDAMAGETIMEOUT));
     }
 
     public void readAdditionalSaveData(CompoundTag compoundTag) {
         super.readAdditionalSaveData(compoundTag);
         this.entityData.set(WINGZROTATION, (compoundTag.getFloat(StarlightButterflies.MOD_ID + ".rotation")));
         this.entityData.set(WINGRESETTIMEOUT, (compoundTag.getInt(StarlightButterflies.MOD_ID + ".timeout")));
+        this.entityData.set(WINGDAMAGETIMEOUT, (compoundTag.getInt(StarlightButterflies.MOD_ID + ".damage_cooldown")));
     }
 
     public float[] getWingRotation(){
@@ -405,13 +410,32 @@ public class ButterflyEntity extends AbstractButterflyGenetics implements Player
     public boolean hurt(DamageSource p_19946_, float p_19947_) {
         if (!this.isInvulnerableTo(p_19946_)) {
             int wingDamage = this.getWingDamage();
-            if (wingDamage < MaxWingDamage) {
+            if (wingDamage < MaxWingDamage && this.wingDamageCooldown(p_19946_)) {
                 if(random.nextInt((this.getWingDurability()*2) + 10) == 0){
                     this.setWingDamage(getWingDamage()+1);
+                    this.wingDamageCooldown(getWingDamage()*20);
                 }
             }
         }
         return super.hurt(p_19946_, p_19947_);
+    }
+
+    private boolean wingDamageCooldown(DamageSource source){
+        // intended to slow down wing damage from effects and such
+        if(wingDamageCooldown(this.entityData.get(WINGDAMAGETIMEOUT)-1) < 0 && damageCooldownApplies(source)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private int wingDamageCooldown(int set){
+        this.entityData.set(WINGDAMAGETIMEOUT, set);
+        return set;
+    }
+
+    private boolean damageCooldownApplies(DamageSource source){
+        return source.is(DamageTypeTags.BYPASSES_ARMOR);
     }
 
     @Override
