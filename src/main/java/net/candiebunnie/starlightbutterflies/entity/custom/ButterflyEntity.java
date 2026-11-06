@@ -43,6 +43,7 @@ public class ButterflyEntity extends AbstractButterflyGenetics implements Player
     protected static final EntityDataAccessor<Integer> WINGDAMAGETIMEOUT = SynchedEntityData.<Integer>defineId(ButterflyEntity.class, EntityDataSerializers.INT);
 
     protected float playerJumpPendingScale;
+    private int playerJumpCooldown = 0;
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
     private float wingRotationz;
@@ -68,6 +69,9 @@ public class ButterflyEntity extends AbstractButterflyGenetics implements Player
         }
         if(!this.isVehicle()){
             resetWingRotation();
+        }
+        if(playerJumpCooldown > 0) {
+            playerJumpCooldown--;
         }
         updateWingZRotation();
 
@@ -99,7 +103,7 @@ public class ButterflyEntity extends AbstractButterflyGenetics implements Player
         super.defineSynchedData();
         this.entityData.define(WINGZROTATION, 10F);
         this.entityData.define(WINGRESETTIMEOUT, 0);
-        this.entityData.define(WINGDAMAGETIMEOUT, 20);
+        this.entityData.define(WINGDAMAGETIMEOUT, 10);
     }
 
     public void addAdditionalSaveData(CompoundTag compoundTag) {
@@ -175,8 +179,8 @@ public class ButterflyEntity extends AbstractButterflyGenetics implements Player
         //behaviour/ai, lower number = higher priority
         this.goalSelector.addGoal(0,new FloatGoal(this)); // floats in water
 
-        this.goalSelector.addGoal(1, new BreedGoal(this, 1.0D));
-        this.goalSelector.addGoal(2, new TemptGoal(this, 1.0D, Ingredient.of(Items.HONEYCOMB), false));
+        this.goalSelector.addGoal(1, new BreedGoal(this, 1.15D));
+        this.goalSelector.addGoal(2, new TemptGoal(this, 1.05D, Ingredient.of(Items.HONEYCOMB), false));
 
         this.goalSelector.addGoal(3,new WaterAvoidingRandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(4,new LookAtPlayerGoal(this, Player.class, 3f));
@@ -198,7 +202,7 @@ public class ButterflyEntity extends AbstractButterflyGenetics implements Player
                 if(itemstack.is(ModItems.EMPTYBUTTERFLYCHARM.get())){
                     return itemstack.interactLivingEntity(p_29489_, this, p_29490_);
                 } else if(itemstack.is(ModItems.WINGHEALER.get()) && this.getWingDamage() > 0){
-                    this.setWingDamage(getWingDamage()-1);
+                    this.healWing(1);
                     this.usePlayerItem(p_29489_, p_29490_, itemstack);
                     return InteractionResult.SUCCESS;
                 } else {
@@ -231,10 +235,11 @@ public class ButterflyEntity extends AbstractButterflyGenetics implements Player
             setWingRotation(50f);
             this.playerJumpPendingScale = 0.4F + 0.4F * (float)p_30591_ / 90.0F;
         }
+        this.playerJumpCooldown = 5;
     }
 
     public boolean canJump() {
-        return true;
+        return this.playerJumpPendingScale == 0 && this.playerJumpCooldown == 0;
     }
 
     public void handleStartJump(int p_30574_) {
@@ -265,7 +270,14 @@ public class ButterflyEntity extends AbstractButterflyGenetics implements Player
     }
 
     public double getCustomJump() {
-        return 2D+(this.getWingDurability()*((5-this.getWingDamage())*0.05))-((double) this.getWingDamage() /4);
+        // even numbers are small, odd numbers are large
+        if((this.getForewingShape() & 1) == 0){
+            // wings are small, so jump lower
+            return 1.8D+(this.getWingDurability()*((5-this.getWingDamage())*0.05))-((double) this.getWingDamage() /4);
+        } else {
+            // wings are large, so jump higher
+            return 2.2D+(this.getWingDurability()*((5-this.getWingDamage())*0.05))-((double) this.getWingDamage() /4);
+        }
     }
 
     protected Vec2 getRiddenRotation(LivingEntity p_275502_) {
@@ -274,12 +286,15 @@ public class ButterflyEntity extends AbstractButterflyGenetics implements Player
 
     protected Vec3 getRiddenInput(Player p_278278_, Vec3 p_275506_) {
         if (!this.onGround()) {
+            double angle = -0.2D; // defines the angle above which we fly at maximum speed, should be between 1 and -1
             double z = p_278278_.getLookAngle().y; // is a value between 1 and -1
-            if((z>0.0D)){ // is now a value between 0 and 1 that gets farther from 0 when looking down
+            if((z>angle)){ // detects whether to go maximum speed
                 z = 0;
-            }else if(z<0.0D) {
-                z = z*-1;
-            }
+            } else { // scale to the proper range
+                z = z-angle; // anchor to 0
+                z = z/(1+angle); // divide by scalar value
+                z = z*-1; // become positive
+            } // z is now a value between 0 and 1 that gets farther from 0 when looking down
             // take a moment to animate, higher number = more forward
             updateWingYRotation(z);
             z = 1-z; // z is now a value between 0 and 1 that gets closer to 0 when looking down
@@ -309,7 +324,15 @@ public class ButterflyEntity extends AbstractButterflyGenetics implements Player
         if (this.onGround()) {
             return (float) this.getAttributeValue(Attributes.MOVEMENT_SPEED);
         } else {
-            return (float) this.getAttributeValue(Attributes.FLYING_SPEED)/((this.getWingDamage()/2F)+1)*0.8F;
+            // even numbers are small, odd numbers are large
+            if((this.getForewingShape() & 1) == 0){
+                // wings are small, so fly faster
+                return (float) this.getAttributeValue(Attributes.FLYING_SPEED)/((this.getWingDamage()/2F)+1);
+            } else {
+                // wings are large, so fly slower
+                return (float) this.getAttributeValue(Attributes.FLYING_SPEED)/((this.getWingDamage()/2F)+1)*0.8F;
+            }
+
         }
     }
 
@@ -404,16 +427,18 @@ public class ButterflyEntity extends AbstractButterflyGenetics implements Player
         } else {
             this.getAttribute(Attributes.FLYING_SPEED).setBaseValue(1D+(this.getFlightSpeed()/4F));
         }
+        this.getAttribute(Attributes.ARMOR).setBaseValue(this.getAttribute(Attributes.ARMOR).getBaseValue() + (this.getWingDurability()));
+        this.startDamageCooldown();
     }
 
     @Override
     public boolean hurt(DamageSource p_19946_, float p_19947_) {
-        if (!this.isInvulnerableTo(p_19946_)) {
+        if (!this.isInvulnerableTo(p_19946_) && !this.level().isClientSide) {
             int wingDamage = this.getWingDamage();
             if (wingDamage < MaxWingDamage && this.wingDamageCooldown(p_19946_)) {
                 if(random.nextInt((this.getWingDurability()*2) + 10) == 0){
-                    this.setWingDamage(getWingDamage()+1);
-                    this.wingDamageCooldown(getWingDamage()*20);
+                    this.damageWing(p_19946_);
+                    this.startDamageCooldown();
                 }
             }
         }
@@ -422,16 +447,43 @@ public class ButterflyEntity extends AbstractButterflyGenetics implements Player
 
     private boolean wingDamageCooldown(DamageSource source){
         // intended to slow down wing damage from effects and such
-        if(wingDamageCooldown(this.entityData.get(WINGDAMAGETIMEOUT)-1) < 0 && damageCooldownApplies(source)){
+        int x = 1;
+        if(source.is(DamageTypeTags.IS_FIRE)){
+            x = 2;
+        }
+        if(wingDamageCooldown(this.entityData.get(WINGDAMAGETIMEOUT)-x) < 0 || !damageCooldownApplies(source)){
             return true;
         } else {
             return false;
         }
     }
 
+    private void startDamageCooldown(){
+        this.wingDamageCooldown(getWingDamage()*getWingDurability()*4);
+    }
+
     private int wingDamageCooldown(int set){
         this.entityData.set(WINGDAMAGETIMEOUT, set);
         return set;
+    }
+
+    private void damageWing(DamageSource source){
+        int x;
+        if(source.is(DamageTypeTags.IS_FIRE)){
+            x = random.nextInt(4);
+        } else {
+            x = random.nextInt(6) + 4;
+        }
+        this.setWingDamage(this.getDamageString()+Character.forDigit(x, 10));
+    }
+
+    private void healWing(int value){
+        String input = this.getDamageString();
+        if(value < input.length()){
+            this.setWingDamage(input.substring(0,input.length()-value));
+        } else {
+            this.setWingDamage("");
+        }
     }
 
     private boolean damageCooldownApplies(DamageSource source){

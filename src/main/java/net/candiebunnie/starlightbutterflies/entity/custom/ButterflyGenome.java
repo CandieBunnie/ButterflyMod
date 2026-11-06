@@ -8,13 +8,13 @@ public class ButterflyGenome {
         // functional
         HEALTH(2,10), // added to base health
         SPEED(2, 10), // added to base (flight) speed
-        DURABILITY(2, 5), // affects armor and scarring, added to base
+        DURABILITY(2, 5), // affects armor, jump strength, and wing damage, added to base
         // head
-        CURL(2,4), // Antenna Curl
+        CURL(3,2), // Antenna Curl
         LENGTH(2,1), // Length of Antennae
         // thorax
         FLUFF(2, 2), // Has neck fluff yes/no, yes = dominant
-        FLUFFSHADE(2, 2), // Colour of neck fluff and general undertone, darker = recessive
+        FLUFFSHADE(2, 2), // Colour of neck fluff and reference for other genes, darker = recessive
         BODYSPOT(2,2), // whether thorax spot is present, yes = dominant
         SPOTSHAPE(10, 3), // Shape of the spot
         // wing shapes

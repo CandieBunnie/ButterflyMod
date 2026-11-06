@@ -132,8 +132,22 @@ public class TextureLayer {
                 for (int x = 0; x < image.getWidth(); ++x) {
                     // if new pixel is not transparent
                     if (getAlphaAsFloat(newImage, x, y) == 1) {
-                        // replace the old pixel
-                        setRGBA(image, x, y, 0, 0, 0, 0);
+                        // if red, burn, if not, erase
+                        // burns more if red is darker
+                        if (getRedAsFloat(newImage, x, y) != 0){
+                            float burn = getRedAsFloat(newImage, x, y);
+
+                            float r = getRedAsFloat(image, x, y);
+                            float g = getGreenAsFloat(image, x, y);
+                            float b = getBlueAsFloat(image, x, y);
+                            float a = getAlphaAsFloat(image, x, y);
+
+                            setRGBA(image, x, y, r*burn, g*burn, b*burn, a);
+                        } else {
+                            // replace the old pixel
+                            setRGBA(image, x, y, 0, 0, 0, 0);
+                        }
+
                     }
                 }
             }

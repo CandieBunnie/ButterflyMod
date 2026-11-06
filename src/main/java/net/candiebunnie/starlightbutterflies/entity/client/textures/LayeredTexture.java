@@ -41,7 +41,11 @@ public class LayeredTexture extends AbstractTexture {
         newLayer("textures/entity/larva/body_1.png",entity.getBodyColour1()); // Body1
         newLayer("textures/entity/larva/body_2.png",entity.getBodyColour2()); // Body2
         newLayer("textures/entity/larva/body_3.png",entity.getBodySpotColour()); // Body3 (interior)
-        newLayer("textures/entity/larva/eyes.png",entity.getEyeColour()); // Eyes
+        if(entity.getEyeColour().isEmpty()) { // Eyes
+            newLayer("textures/entity/larva/b_eyes.png");
+        } else {
+            newLayer("textures/entity/larva/w_eyes.png",entity.getEyeColour());
+        }
         // Antenna Texture (contains feet also)
         newLayer("textures/entity/larva/antenna/"+entity.getAntennaShape()+".png");
     }
@@ -51,7 +55,11 @@ public class LayeredTexture extends AbstractTexture {
         newLayer("textures/entity/butterfly/body/body_1_base.png"); // Body 1
         newPattern("textures/entity/butterfly/body/body_1.png",entity.getBodyColour1());
         newLayer("textures/entity/butterfly/body/body_2.png",entity.getBodyColour2()); // Body 2
-        newLayer("textures/entity/butterfly/body/eyes.png",entity.getEyeColour()); // Eyes
+        if(entity.getEyeColour().isEmpty()) { // Eyes
+            newLayer("textures/entity/butterfly/body/b_eyes.png");
+        } else {
+            newLayer("textures/entity/butterfly/body/w_eyes.png",entity.getEyeColour());
+        }
         // Fluff
         if (entity.isFluffDark()) {
             newLayer("textures/entity/butterfly/body/fluff.png","0f0f0f"); // Fluff is black
@@ -66,8 +74,10 @@ public class LayeredTexture extends AbstractTexture {
 
         // Antenna Texture (contains legs also)
         newLayer("textures/entity/butterfly/body/antenna/"+entity.getAntennaShape()+".png"); // Antenna
-        // Wing Damage (should be the last newLayer called)
-        newLayer("textures/entity/butterfly/damage/"+entity.getWingDamage()+".png",true); // wing damage
+        // Wing Damage (should be the last newLayers called)
+        for(int i = 0; i < entity.getWingDamage(); i++){
+            newLayer("textures/entity/butterfly/damage/"+i+"/"+entity.getDamageString().charAt(i)+".png",true);
+        }
 
         // Patterns!
         newPattern("textures/entity/butterfly/forewing/pattern/base/"+entity.getForewingShape()+".png",entity.getForewingColour()); // Forewing Base

@@ -42,6 +42,7 @@ public abstract class AbstractButterflyGenetics extends Animal {
     private static final char[] digits = {'0','1','2','3','4','5','6','7','8','9'}; // things aren't working and I don't know why so we're just doing this >:(
 
     protected static final EntityDataAccessor<String> GENE_DATA = SynchedEntityData.<String>defineId(AbstractButterflyGenetics.class, EntityDataSerializers.STRING);
+    protected static final EntityDataAccessor<String> DAMAGE_STRING = SynchedEntityData.<String>defineId(AbstractButterflyGenetics.class, EntityDataSerializers.STRING);
     protected static final EntityDataAccessor<Integer> WING_DAMAGE = SynchedEntityData.<Integer>defineId(AbstractButterflyGenetics.class, EntityDataSerializers.INT);
 
     protected static final EntityDataAccessor<Integer> HEALTH = SynchedEntityData.<Integer>defineId(AbstractButterflyGenetics.class, EntityDataSerializers.INT);
@@ -85,7 +86,7 @@ public abstract class AbstractButterflyGenetics extends Animal {
 
     protected String textureName;
     protected LayeredTexture texture;
-    protected int textureWingDamage;
+    protected String textureWingDamage;
 
     protected AbstractButterflyGenetics(EntityType<? extends Animal> p_27557_, Level p_27558_) {
         super(p_27557_, p_27558_);
@@ -94,7 +95,7 @@ public abstract class AbstractButterflyGenetics extends Animal {
     public InteractionResult mobInteract(Player p_27584_, InteractionHand p_27585_) {
         ItemStack itemstack = p_27584_.getItemInHand(p_27585_);
         if (itemstack.is(ModItems.EMPTYBUTTERFLYCHARM.get())) {
-            if (!this.isBaby()) {
+            if (!this.isBaby() && !this.isVehicle()) {
                 return ButterflyCharmItem.butterflyPickup(p_27584_, p_27585_, this).orElse(super.mobInteract(p_27584_, p_27585_));
             }
         }
@@ -123,7 +124,7 @@ public abstract class AbstractButterflyGenetics extends Animal {
         }
         compoundtag.putInt("Age", this.getAge());
         compoundtag.putString(StarlightButterflies.MOD_ID+".genome", this.getGenes());
-        compoundtag.putInt(StarlightButterflies.MOD_ID+".wing_damage", this.getWingDamage());
+        compoundtag.putString(StarlightButterflies.MOD_ID+".wing_damage", this.getDamageString());
         if(this instanceof LarvaEntity){
             compoundtag.putFloat("Health", 30F);
             compoundtag.putInt("Damage", ModItems.FILLEDBUTTERFLYCHARM.get().getMaxDamage(p_149187_));
@@ -133,13 +134,22 @@ public abstract class AbstractButterflyGenetics extends Animal {
         CompoundTag display = p_149187_.getOrCreateTagElement("display");
         display.putString("1", this.getBodyColour1());
         display.putString("2", this.getForewingColour());
-        if(!this.getVeinColour().isEmpty()){
+        if(!this.getForewingStripes()[0] && this.getBodySpotShape()!=0){
+            // if no outer stripe and the next layer will use a different colour, use the spot colour
+            display.putString("3", this.getWingSpotColour());
+        } else if(!this.getForewingStripes()[0] && !this.getVeinColour().isEmpty()) {
+            // if it has veins and no outer stripe, use the vein colour
             display.putString("3", this.getVeinColour());
         } else {
+            // use the outer stripe colour
             display.putString("3", this.getWingStripeColour(0));
         }
-        if(this.getBodySpotShape()!=0){
+        if(this.getBodySpotShape()!=0 && !this.getBodySpotColour().equals(this.getWingSpotColour())){
             display.putString("4", this.getBodySpotColour());
+        } else if(!this.getForewingColour().equals(this.getWingSpotColour())) {
+            display.putString("4", this.getWingSpotColour());
+        } else if(!this.getVeinColour().isEmpty()){
+            display.putString("4", this.getVeinColour());
         } else {
             display.putString("4", this.getBodyColour2());
         }
@@ -167,7 +177,7 @@ public abstract class AbstractButterflyGenetics extends Animal {
         if (p_149163_.contains("Age")) {
             this.setAge(p_149163_.getInt("Age"));
         }
-        setWingDamage(p_149163_.getInt(StarlightButterflies.MOD_ID+".wing_damage"));
+        setWingDamage(p_149163_.getString(StarlightButterflies.MOD_ID+".wing_damage"));
         this.setGenes(p_149163_.getString(StarlightButterflies.MOD_ID+".genome"));
     }
 
@@ -202,19 +212,20 @@ public abstract class AbstractButterflyGenetics extends Animal {
     public void addAdditionalSaveData(CompoundTag compoundTag) {
         super.addAdditionalSaveData(compoundTag);
         compoundTag.putString(StarlightButterflies.MOD_ID + ".genome", this.getGenes());
-        compoundTag.putInt(StarlightButterflies.MOD_ID + ".wing_damage", this.getWingDamage());
+        compoundTag.putString(StarlightButterflies.MOD_ID + ".wing_damage", this.getDamageString());
     }
 
     public void readAdditionalSaveData(CompoundTag compoundTag) {
         super.readAdditionalSaveData(compoundTag);
+        setWingDamage(compoundTag.getString(StarlightButterflies.MOD_ID + ".wing_damage"));
         this.setGenes(compoundTag.getString(StarlightButterflies.MOD_ID + ".genome"));
-        setWingDamage(compoundTag.getInt(StarlightButterflies.MOD_ID + ".wing_damage"));
     }
 
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(GENE_DATA, "");
+        this.entityData.define(DAMAGE_STRING, "");
         this.entityData.define(WING_DAMAGE, 0);
 
         this.entityData.define(HEALTH, 0);
@@ -1002,8 +1013,6 @@ public abstract class AbstractButterflyGenetics extends Animal {
                 case EYECOLOUR:
                     if(boolbuffer[0]){
                         this.entityData.set(EYE_COLOUR, wingPalette[limitColour(toInt(gene[0])+1,intList[0])]);
-                    } else {
-                        this.entityData.set(EYE_COLOUR, colours[3]);
                     }
                     clearable[0] = gene[0];
                     break;
@@ -1143,14 +1152,14 @@ public abstract class AbstractButterflyGenetics extends Animal {
     }
 
     public String getTextureName(){
-        if(this.texture == null || this.textureWingDamage != this.getWingDamage()){
+        if(this.texture == null || !this.getDamageString().equals(this.textureWingDamage)){
             refreshTextureName();
         }
         return this.textureName;
     }
 
     public LayeredTexture getTexture(){
-        if(this.texture == null || this.textureWingDamage != this.getWingDamage()){
+        if(this.texture == null || !this.getDamageString().equals(this.textureWingDamage)){
             refreshTextureName();
         }
         return this.texture;
@@ -1159,15 +1168,23 @@ public abstract class AbstractButterflyGenetics extends Animal {
     public void refreshTextureName(){
         this.texture = new LayeredTexture(this);
         this.textureName = texture.getName();
-        this.textureWingDamage = getWingDamage();
+        this.textureWingDamage = getDamageString();
     }
 
-    public void setWingDamage(int input){
-        this.entityData.set(WING_DAMAGE, input);
+    public void setWingDamage(String input){
+        if(input.length() > 5){
+            // ensure too long inputs don't crash the game
+            input = input.substring(0, 5);
+        }
+        // also need to make sure every character is a digit
+        this.entityData.set(DAMAGE_STRING, input);
         refreshTextureName();
     }
     public int getWingDamage(){
-        return this.entityData.get(WING_DAMAGE);
+        return this.entityData.get(DAMAGE_STRING).length();
+    }
+    public String getDamageString(){
+        return this.entityData.get(DAMAGE_STRING);
     }
 
     public double getGeneticHealth(){return this.entityData.get(HEALTH);}
