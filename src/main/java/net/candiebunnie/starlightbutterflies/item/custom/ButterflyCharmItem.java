@@ -38,7 +38,10 @@ public class ButterflyCharmItem extends Item {
         if(pStack.getOrCreateTag().getInt("Damage") > 0){
             CompoundTag tag = pStack.getTag();
             int damage = tag.getInt("Damage");
-            damage--;
+            damage-= Config.MetamorphosisTimer;
+            if(damage < 0){
+                damage = 0;
+            }
             tag.putInt("Damage", damage);
         }
     }

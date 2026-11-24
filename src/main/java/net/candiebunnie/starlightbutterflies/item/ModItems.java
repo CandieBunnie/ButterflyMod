@@ -15,7 +15,7 @@ public class ModItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, StarlightButterflies.MOD_ID);
 
     public static final RegistryObject<Item> EMPTYBUTTERFLYCHARM = ITEMS.register("butterfly_charm", () -> new ButterflyCharmItem(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<Item> FILLEDBUTTERFLYCHARM = ITEMS.register("butterfly_charm_full", () -> new ButterflyCharmItem(new Item.Properties().stacksTo(1).defaultDurability(12000).setNoRepair().fireResistant()));
+    public static final RegistryObject<Item> FILLEDBUTTERFLYCHARM = ITEMS.register("butterfly_charm_full", () -> new ButterflyCharmItem(new Item.Properties().stacksTo(1).defaultDurability(24000).setNoRepair().fireResistant()));
 
     public static final RegistryObject<Item> WINGHEALER = ITEMS.register("wing_poultice", () -> new Item(new Item.Properties()));
 

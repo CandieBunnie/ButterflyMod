@@ -32,8 +32,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class ButterflyEggBlock extends BaseEntityBlock {
     public static final IntegerProperty HATCH = BlockStateProperties.HATCH;
-    private static final int REGULAR_HATCH_TIME_TICKS = 12000;
-    private static final int RANDOM_HATCH_OFFSET_TICKS = 300;
     private static final VoxelShape SHAPE = Block.box(4.0D, 0.0D, 4.0D, 12.0D, 12.0D, 12.0D);
 
     public ButterflyEggBlock(Properties p_49795_) {
@@ -51,8 +49,8 @@ public class ButterflyEggBlock extends BaseEntityBlock {
     public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
         // Drop self when removed, unless removal is from hatching
         // is called before our block entity is killed so we probably do need to use this one
+        // because this is deprecated, though, we could probably have the block entity do this before it dies
         if (pState.getBlock() != pNewState.getBlock()) {
-            ButterflyEggBlock block;
             BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
             if (pState.getBlock() instanceof ButterflyEggBlock && blockEntity instanceof ButterflyEggBlockEntity) {
                 ((ButterflyEggBlockEntity) blockEntity).dropItem(pLevel, pPos.getX(), pPos.getY(), pPos.getZ());
@@ -112,9 +110,9 @@ public class ButterflyEggBlock extends BaseEntityBlock {
     }
 
     public void onPlace(BlockState p_277964_, Level p_277827_, BlockPos p_277526_, BlockState p_277618_, boolean p_277819_) {
-        int j = REGULAR_HATCH_TIME_TICKS / 3;
+        int j = Config.EggTicks / 3;
         p_277827_.gameEvent(GameEvent.BLOCK_PLACE, p_277526_, GameEvent.Context.of(p_277964_));
-        p_277827_.scheduleTick(p_277526_, this, j + p_277827_.random.nextInt(RANDOM_HATCH_OFFSET_TICKS));
+        p_277827_.scheduleTick(p_277526_, this, j + p_277827_.random.nextInt(Config.EggOffset));
     }
 
     public boolean isPathfindable(BlockState p_279414_, BlockGetter p_279243_, BlockPos p_279294_, PathComputationType p_279299_) {

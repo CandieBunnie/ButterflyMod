@@ -80,50 +80,10 @@ public class LayeredTexture extends AbstractTexture {
         }
 
         // Patterns!
-        newPattern("textures/entity/butterfly/forewing/pattern/base/"+entity.getForewingShape()+".png",entity.getForewingColour()); // Forewing Base
-        //System.out.println("getForewingColour(): "+entity.getForewingColour());
-        newPattern("textures/entity/butterfly/hindwing/pattern/base/"+entity.getHindwingShape()+".png",entity.getHindwingColour()); // Hindwing Base
-        //System.out.println("getHindwingColour(): "+entity.getHindwingColour());
-        if(entity.getVeinColour() != null){
-            if(!entity.getVeinColour().isEmpty()){
-                newPattern("textures/entity/butterfly/forewing/pattern/veins/"+entity.getForewingShape()+".png",entity.getVeinColour()); // Forewing Veins
-                newPattern("textures/entity/butterfly/hindwing/pattern/veins/"+entity.getHindwingShape()+".png",entity.getVeinColour()); // Hindwing Veins
-            }
+        for(int i = 0; i < entity.getPatternAmount(); i++){
+            newPattern(entity.getPattern(i).getPath(), entity.getPattern(i).getColour(), entity.getPattern(i).getName());
         }
-        //System.out.println("getVeinColour(): "+entity.getVeinColour());
-        boolean[] stripes = entity.getForewingStripes();
-        for(int i = 0; i < stripes.length; i++){
-            if(stripes[i]){
-                newPattern("textures/entity/butterfly/forewing/pattern/stripes/"+i+"/"+entity.getForewingShape()+".png",entity.getWingStripeColour(i));
-                //System.out.println("getForewingStripeColour("+i+"): "+entity.getForewingStripeColour(i));
-            }
-        }
-        stripes = entity.getHindwingStripes();
-        for(int i = 0; i < stripes.length; i++){
-            if(stripes[i]){
-                newPattern("textures/entity/butterfly/hindwing/pattern/stripes/"+i+"/"+entity.getHindwingShape()+".png",entity.getWingStripeColour(i));
-                //System.out.println("getHindwingStripeColour("+i+"): "+entity.getHindwingStripeColour(i));
-            }
-        }
-        int[] spots = entity.getForewingSpots();
-        for(int i = 0; i < spots.length; i++){
-            if(spots[i] > 0){
-                newPattern("textures/entity/butterfly/forewing/pattern/spots/"+i+"/"+(spots[i]-1)+"/"+entity.getForewingShape()+".png",entity.getWingSpotColour());
-            }
-        }
-        spots = entity.getHindwingSpots();
-        for(int i = 0; i < spots.length; i++){
-            if(spots[i] > 0){
-                newPattern("textures/entity/butterfly/hindwing/pattern/spots/"+i+"/"+(spots[i]-1)+"/"+entity.getHindwingShape()+".png",entity.getWingSpotColour());
-            }
-        }
-        spots = entity.getEyeSpots();
-        for(int i = 0; i < spots[0]; i++){
-            newPattern("textures/entity/butterfly/forewing/pattern/eyes/"+i+"/"+entity.getForewingShape()+".png",entity.getEyeSpotColour(i));
-        }
-        for(int i = 0; i < spots[1]; i++){
-            newPattern("textures/entity/butterfly/hindwing/pattern/eyes/"+i+"/"+entity.getHindwingShape()+".png",entity.getEyeSpotColour(i));
-        }
+
     }
 
     private void newLayer(String location, boolean erase){
@@ -145,6 +105,9 @@ public class LayeredTexture extends AbstractTexture {
     }
     private void newPattern(String location, String colour){
         patterns.add(new TextureLayer(location,getLocation(location),colourToFloats(colour)));
+    }
+    private void newPattern(String location, String colour, String name){
+        patterns.add(new TextureLayer(location,getLocation(location),colourToFloats(colour),name));
     }
 
     public String getName(){

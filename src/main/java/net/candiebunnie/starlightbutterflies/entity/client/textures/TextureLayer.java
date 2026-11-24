@@ -18,6 +18,13 @@ public class TextureLayer {
     private final Type type;
     private final String name;
 
+    private TextureLayer(String locName, ResourceLocation location, float[] colour, Type type, String name) {
+        this.texture = location;
+        this.colour = colour;
+        this.type = type;
+        this.name = name;
+    }
+
     private TextureLayer(String locName, ResourceLocation location, float[] colour, Type type) {
         this.texture = location;
         this.colour = colour;
@@ -41,15 +48,19 @@ public class TextureLayer {
         this(locName, location, colour, Type.NORMAL);
     }
 
+    public TextureLayer(String locName, ResourceLocation location, float[] colour, String name) {
+        this(locName, location, colour, Type.NORMAL, name);
+    }
+
     public TextureLayer(String locName, ResourceLocation location, Type type) {
         this(locName, location, new float[]{0, 0, 0}, type);
     }
 
     public static void applyPattern(NativeImage base, NativeImage pattern){
         // combine pattern and base via multiplication
-            for (int y = 0; y < base.getHeight(); ++y) {
+            for (int y = 0; y < base.getHeight() && y < 128; ++y) {
                 // loop over every pixel
-                for (int x = 0; x < base.getWidth(); ++x) {
+                for (int x = 0; x < base.getWidth() && x < 192; ++x) {
                     // if new pixel is not transparent
                     if (getAlphaAsFloat(pattern, x, y) == 1) {
                         // get replacement colours
@@ -83,15 +94,26 @@ public class TextureLayer {
         // add layer to image, with colour
         NativeImage newImage = this.getUncolouredImage(manager);
         if(newImage != null) {
-            for (int y = 0; y < image.getHeight(); ++y) {
+            for (int y = 0; y < image.getHeight() && y < 128; y++) {
                 // loop over every pixel
-                for (int x = 0; x < image.getWidth(); ++x) {
+                for (int x = 0; x < image.getWidth() && x < 192; x++) {
                     // if new pixel is not transparent
-                    if (getAlphaAsFloat(newImage, x, y) == 1) {
+                    if (getAlphaAsFloat(newImage, x, y) != 0) {
                         // get replacement colours
-                        float r = getMultipliedRedAsFloat(newImage, x, y);
-                        float g = getMultipliedGreenAsFloat(newImage, x, y);
-                        float b = getMultipliedBlueAsFloat(newImage, x, y);
+                        float r;
+                        float g;
+                        float b;
+                        if(getAlphaAsFloat(newImage, x, y) == 1){
+                            // if new pixel is entirely opaque
+                            r = getMultipliedRedAsFloat(newImage, x, y);
+                            g = getMultipliedGreenAsFloat(newImage, x, y);
+                            b = getMultipliedBlueAsFloat(newImage, x, y);
+                        } else {
+                            // mix the colours
+                            r = (getMultipliedRedAsFloat(newImage, x, y)*getAlphaAsFloat(newImage, x, y))+(getRedAsFloat(image, x, y)*(1-getAlphaAsFloat(newImage, x, y)));
+                            g = (getMultipliedGreenAsFloat(newImage, x, y)*getAlphaAsFloat(newImage, x, y))+(getGreenAsFloat(image, x, y)*(1-getAlphaAsFloat(newImage, x, y)));
+                            b = (getMultipliedBlueAsFloat(newImage, x, y)*getAlphaAsFloat(newImage, x, y))+(getBlueAsFloat(image, x, y)*(1-getAlphaAsFloat(newImage, x, y)));
+                        }
 
                         // replace the old pixel
                         setRGBA(image, x, y, r, g, b, 1);
@@ -105,9 +127,9 @@ public class TextureLayer {
         // add layer to image, without involving our colour
         NativeImage newImage = this.getUncolouredImage(manager);
         if(newImage != null) {
-            for (int y = 0; y < image.getHeight(); ++y) {
+            for (int y = 0; y < image.getHeight() && y < 128; y++) {
                 // loop over every pixel
-                for (int x = 0; x < image.getWidth(); ++x) {
+                for (int x = 0; x < image.getWidth() && x < 192; x++) {
                     // if new pixel is not transparent
                     if (getAlphaAsFloat(newImage, x, y) == 1) {
                         // get replacement colours
@@ -127,14 +149,14 @@ public class TextureLayer {
         // erase layer from image
         NativeImage newImage = this.getUncolouredImage(manager);
         if(newImage != null) {
-            for (int y = 0; y < image.getHeight(); ++y) {
+            for (int y = 0; y < image.getHeight() && y < 128; y++) {
                 // loop over every pixel
-                for (int x = 0; x < image.getWidth(); ++x) {
+                for (int x = 0; x < image.getWidth() && x < 192; x++) {
                     // if new pixel is not transparent
                     if (getAlphaAsFloat(newImage, x, y) == 1) {
-                        // if red, burn, if not, erase
+                        // if red, burn, if green or if not red, erase
                         // burns more if red is darker
-                        if (getRedAsFloat(newImage, x, y) != 0){
+                        if (getRedAsFloat(newImage, x, y) != 0 && getGreenAsFloat(newImage, x, y) == 0){
                             float burn = getRedAsFloat(newImage, x, y);
 
                             float r = getRedAsFloat(image, x, y);

@@ -5,9 +5,7 @@ package net.candiebunnie.starlightbutterflies.entity.client.models;// Made with 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.candiebunnie.starlightbutterflies.entity.animations.ButterflyAnimations;
-import net.candiebunnie.starlightbutterflies.entity.animations.LarvaAnimations;
 import net.candiebunnie.starlightbutterflies.entity.custom.ButterflyEntity;
-import net.candiebunnie.starlightbutterflies.entity.custom.LarvaEntity;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -18,40 +16,20 @@ import net.minecraft.world.entity.Entity;
 public class ButterflyModel<T extends Entity> extends HierarchicalModel<T> {
 	private final ModelPart Butterfly;
 	private final ModelPart Head;
-	private final ModelPart LeftAntenna;
-	private final ModelPart RightAntenna;
 	private final ModelPart Thorax;
 	private final ModelPart Fluff;
-	private final ModelPart Legs;
-	private final ModelPart RightLeg1;
-	private final ModelPart RightLeg2;
-	private final ModelPart RightLeg3;
-	private final ModelPart LeftLeg3;
-	private final ModelPart LeftLeg2;
-	private final ModelPart LeftLeg1;
 	private final ModelPart Wings;
 	private final ModelPart RightWing;
 	private final ModelPart LeftWing;
-	private final ModelPart Abdomen;
 
 	public ButterflyModel(ModelPart root) {
 		this.Butterfly = root.getChild("Butterfly");
 		this.Head = this.Butterfly.getChild("Head");
-		this.LeftAntenna = this.Head.getChild("LeftAntenna");
-		this.RightAntenna = this.Head.getChild("RightAntenna");
 		this.Thorax = this.Butterfly.getChild("Thorax");
 		this.Fluff = this.Thorax.getChild("Fluff");
-		this.Legs = this.Thorax.getChild("Legs");
-		this.RightLeg1 = this.Legs.getChild("RightLeg1");
-		this.RightLeg2 = this.Legs.getChild("RightLeg2");
-		this.RightLeg3 = this.Legs.getChild("RightLeg3");
-		this.LeftLeg3 = this.Legs.getChild("LeftLeg3");
-		this.LeftLeg2 = this.Legs.getChild("LeftLeg2");
-		this.LeftLeg1 = this.Legs.getChild("LeftLeg1");
 		this.Wings = this.Thorax.getChild("Wings");
 		this.RightWing = this.Wings.getChild("RightWing");
 		this.LeftWing = this.Wings.getChild("LeftWing");
-		this.Abdomen = this.Butterfly.getChild("Abdomen");
 	}
 
 	public static LayerDefinition createBodyLayer() {
@@ -108,6 +86,28 @@ public class ButterflyModel<T extends Entity> extends HierarchicalModel<T> {
 
 		PartDefinition left_leg_1_r1 = LeftLeg1.addOrReplaceChild("left_leg_1_r1", CubeListBuilder.create().texOffs(70, 0).addBox(-1.1F, -1.0F, 0.0F, 1.0F, 9.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -0.5672F, -0.7418F, 0.2618F));
 
+		// here so that the game still runs, don't worry about it
+		PartDefinition Wings = Thorax.addOrReplaceChild("Wings", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition RightWing = Wings.addOrReplaceChild("RightWing", CubeListBuilder.create(), PartPose.offset(-5.0F, -5.0F, -7.0F));
+		PartDefinition LeftWing = Wings.addOrReplaceChild("LeftWing", CubeListBuilder.create(), PartPose.offset(5.0F, -5.0F, -7.0F));
+
+		PartDefinition Abdomen = Butterfly.addOrReplaceChild("Abdomen", CubeListBuilder.create(), PartPose.offset(-5.0F, 6.0F, 8.0F));
+
+		PartDefinition abdomen2_r1 = Abdomen.addOrReplaceChild("abdomen2_r1", CubeListBuilder.create().texOffs(103, 22).addBox(-5.0F, -5.0F, 7.0F, 6.0F, 5.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(2.0F, 4.0F, 3.0F, -0.2618F, 0.0F, 0.0F));
+
+		PartDefinition abdomen1_r1 = Abdomen.addOrReplaceChild("abdomen1_r1", CubeListBuilder.create().texOffs(85, 0).addBox(-7.0F, -7.0F, -1.0F, 8.0F, 7.0F, 12.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(3.0F, 4.0F, -1.0F, -0.2618F, 0.0F, 0.0F));
+
+		return LayerDefinition.create(meshdefinition, 256, 256);
+	}
+
+	public static LayerDefinition createWingLayer() {
+		MeshDefinition meshdefinition = new MeshDefinition();
+		PartDefinition partdefinition = meshdefinition.getRoot();
+
+		PartDefinition Butterfly = partdefinition.addOrReplaceChild("Butterfly", CubeListBuilder.create(), PartPose.offset(5.0F, 9.0F, -2.0F));
+
+		PartDefinition Thorax = Butterfly.addOrReplaceChild("Thorax", CubeListBuilder.create(), PartPose.offset(-5.0F, 5.0F, 7.0F));
+
 		PartDefinition Wings = Thorax.addOrReplaceChild("Wings", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition RightWing = Wings.addOrReplaceChild("RightWing", CubeListBuilder.create(), PartPose.offset(-5.0F, -5.0F, -7.0F));
@@ -120,11 +120,9 @@ public class ButterflyModel<T extends Entity> extends HierarchicalModel<T> {
 		PartDefinition left_hindwing_r1 = LeftWing.addOrReplaceChild("left_hindwing_r1", CubeListBuilder.create().texOffs(64, 64).mirror().addBox(-1.0F, 1.0F, -21.0F, 64.0F, 0.0F, 64.0F, new CubeDeformation(0.0F)).mirror(false)
 				.texOffs(64, 0).mirror().addBox(-1.0F, 0.0F, -21.0F, 64.0F, 0.0F, 64.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -0.3072F, -0.2377F, 0.1016F));
 
-		PartDefinition Abdomen = Butterfly.addOrReplaceChild("Abdomen", CubeListBuilder.create(), PartPose.offset(-5.0F, 6.0F, 8.0F));
-
-		PartDefinition abdomen2_r1 = Abdomen.addOrReplaceChild("abdomen2_r1", CubeListBuilder.create().texOffs(103, 22).addBox(-5.0F, -5.0F, 7.0F, 6.0F, 5.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(2.0F, 4.0F, 3.0F, -0.2618F, 0.0F, 0.0F));
-
-		PartDefinition abdomen1_r1 = Abdomen.addOrReplaceChild("abdomen1_r1", CubeListBuilder.create().texOffs(85, 0).addBox(-7.0F, -7.0F, -1.0F, 8.0F, 7.0F, 12.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(3.0F, 4.0F, -1.0F, -0.2618F, 0.0F, 0.0F));
+		// here so that the game still runs, don't worry about it
+		PartDefinition Head = Butterfly.addOrReplaceChild("Head", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition Fluff = Thorax.addOrReplaceChild("Fluff", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		return LayerDefinition.create(meshdefinition, 256, 256);
 	}
@@ -133,7 +131,7 @@ public class ButterflyModel<T extends Entity> extends HierarchicalModel<T> {
 	public void setupAnim(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.root().getAllParts().forEach(ModelPart::resetPose);
 		if(entity instanceof ButterflyEntity butterfly) {
-            this.Fluff.visible = butterfly.hasFluff();
+			this.Fluff.visible = butterfly.hasFluff();
 			applyWingRotation(butterfly.getWingRotation());
 		}
 

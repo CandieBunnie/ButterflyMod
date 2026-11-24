@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.candiebunnie.starlightbutterflies.StarlightButterflies;
 import net.candiebunnie.starlightbutterflies.entity.client.ModModelLayers;
 import net.candiebunnie.starlightbutterflies.entity.client.models.ButterflyModel;
+import net.candiebunnie.starlightbutterflies.entity.client.models.ButterflyWingLayer;
+import net.candiebunnie.starlightbutterflies.entity.client.models.LarvaOuterLayer;
 import net.candiebunnie.starlightbutterflies.entity.client.textures.LayeredTexture;
 import net.candiebunnie.starlightbutterflies.entity.custom.ButterflyEntity;
 import net.minecraft.client.Minecraft;
@@ -20,6 +22,7 @@ public class ButterflyRenderer extends MobRenderer<ButterflyEntity, ButterflyMod
 
     public ButterflyRenderer(EntityRendererProvider.Context pContext) {
         super(pContext, new ButterflyModel<>(pContext.bakeLayer(ModModelLayers.BUTTERFLY_LAYER)), 1.5f);
+        this.addLayer(new ButterflyWingLayer<>(this, pContext.getModelSet()));
     }
 
     @Override
@@ -34,11 +37,11 @@ public class ButterflyRenderer extends MobRenderer<ButterflyEntity, ButterflyMod
                     entity.getTexture()
             ); // creates a new texture image thing and gives it to minecraft
             BUTTERFLY_LOCATION_CACHE.put(entity.getTextureName(), resourcelocation); // saves the texture at the place for future reference
-            //System.out.println("texture registered successfully");
+
         }
         return resourcelocation;
-        // // DEBUG
-        //return new ResourceLocation(StarlightButterflies.MOD_ID,"textures/entity/butterflybase.png");
+//         // DEBUG
+//        return new ResourceLocation(StarlightButterflies.MOD_ID,"textures/entity/butterflybase.png");
     }
 
     @Override

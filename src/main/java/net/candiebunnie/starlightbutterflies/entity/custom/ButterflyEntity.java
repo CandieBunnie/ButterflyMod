@@ -1,5 +1,6 @@
 package net.candiebunnie.starlightbutterflies.entity.custom;
 
+import net.candiebunnie.starlightbutterflies.Config;
 import net.candiebunnie.starlightbutterflies.StarlightButterflies;
 import net.candiebunnie.starlightbutterflies.block.ModBlocks;
 import net.candiebunnie.starlightbutterflies.block.custom.ButterflyEggBlock;
@@ -10,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -468,13 +470,15 @@ public class ButterflyEntity extends AbstractButterflyGenetics implements Player
     }
 
     private void damageWing(DamageSource source){
-        int x;
-        if(source.is(DamageTypeTags.IS_FIRE)){
-            x = random.nextInt(4);
-        } else {
-            x = random.nextInt(6) + 4;
+        if(Config.doWingDamage){
+            int x;
+            if(source.is(DamageTypeTags.IS_FIRE)){
+                x = random.nextInt(4);
+            } else {
+                x = random.nextInt(6) + 4;
+            }
+            this.setWingDamage(this.getDamageString()+Character.forDigit(x, 10));
         }
-        this.setWingDamage(this.getDamageString()+Character.forDigit(x, 10));
     }
 
     private void healWing(int value){

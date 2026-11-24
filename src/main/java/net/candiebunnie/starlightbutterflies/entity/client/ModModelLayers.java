@@ -9,4 +9,5 @@ public class ModModelLayers {
     public static final ModelLayerLocation LARVA_OUTER_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(StarlightButterflies.MOD_ID, "larva_layer"), "outer");
 
     public static final ModelLayerLocation BUTTERFLY_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(StarlightButterflies.MOD_ID, "butterfly_layer"), "main");
+    public static final ModelLayerLocation BUTTERFLY_WING_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(StarlightButterflies.MOD_ID, "butterfly_layer"), "wings");
 }

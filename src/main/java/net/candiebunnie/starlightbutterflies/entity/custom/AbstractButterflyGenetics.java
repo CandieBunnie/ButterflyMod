@@ -1,7 +1,9 @@
 package net.candiebunnie.starlightbutterflies.entity.custom;
 
+import net.candiebunnie.starlightbutterflies.Config;
 import net.candiebunnie.starlightbutterflies.StarlightButterflies;
 import net.candiebunnie.starlightbutterflies.entity.client.textures.LayeredTexture;
+import net.candiebunnie.starlightbutterflies.entity.client.textures.WingPattern;
 import net.candiebunnie.starlightbutterflies.item.ModItems;
 import net.candiebunnie.starlightbutterflies.item.custom.ButterflyCharmItem;
 import net.minecraft.nbt.CompoundTag;
@@ -10,7 +12,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -18,14 +19,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.SpawnGroupData;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraftforge.client.event.RenderTooltipEvent;
 import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nullable;
@@ -37,7 +35,6 @@ import java.util.Random;
 import static net.minecraft.util.Mth.clamp;
 
 public abstract class AbstractButterflyGenetics extends Animal {
-    private static final int mutationChance = 100; // there is a 1 in x chance for a gene to mutate when generating from parents
     private static final String[] colourCodes = {"0f","2d","4b","69","87","a5","c3","e1"}; // provides hex codes because I don't want to deal with bases
     private static final char[] digits = {'0','1','2','3','4','5','6','7','8','9'}; // things aren't working and I don't know why so we're just doing this >:(
 
@@ -83,6 +80,8 @@ public abstract class AbstractButterflyGenetics extends Animal {
     protected static final EntityDataAccessor<String> EYE_SPOT_COLOURS = SynchedEntityData.<String>defineId(AbstractButterflyGenetics.class, EntityDataSerializers.STRING);
     protected static final EntityDataAccessor<Integer> WING_SPOT_COLOUR = SynchedEntityData.<Integer>defineId(AbstractButterflyGenetics.class, EntityDataSerializers.INT);
 
+    protected ArrayList<WingPattern> patterns; // list of wing patterns
+    protected ArrayList<String> colourPalette; // have entity store its colours in a central place for the patterns to access
 
     protected String textureName;
     protected LayeredTexture texture;
@@ -479,11 +478,18 @@ public abstract class AbstractButterflyGenetics extends Animal {
                 smallOutput = combine(smallGenome1, smallGenome2);
                 for(int j = 0; j < ButterflyGenome.GENOME.values[i].getCopies(); j++){
                     // assign to output
-                    if(random.nextInt(mutationChance) != 0){
+                    if(Config.MutationChance == -1) {
                         output[index] = smallOutput[j];
-                    } else {
+                    } else if(Config.MutationChance == 0){
                         // mutate
                         output[index] = Character.forDigit(random.nextInt(ButterflyGenome.GENOME.values[i].getRange()), 10);
+                    } else {
+                        if(random.nextInt(Config.MutationChance) != 0){
+                            output[index] = smallOutput[j];
+                        } else {
+                            // mutate
+                            output[index] = Character.forDigit(random.nextInt(ButterflyGenome.GENOME.values[i].getRange()), 10);
+                        }
                     }
 
                     index++;
@@ -1151,6 +1157,49 @@ public abstract class AbstractButterflyGenetics extends Animal {
         refreshTextureName();
     }
 
+    private void createPatternListTemp(){
+        this.patterns = new ArrayList<>();
+
+        this.patterns.add(WingPattern.base(this.getForewingShape(),this.getForewingColour(),true));
+        this.patterns.add(WingPattern.base(this.getHindwingShape(),this.getHindwingColour(),false));
+
+        if(this.getVeinColour() != null){
+            if(!this.getVeinColour().isEmpty()){
+                this.patterns.add(WingPattern.veins(this.getForewingShape(),this.getVeinColour(), true));
+                this.patterns.add(WingPattern.veins(this.getHindwingShape(),this.getVeinColour(), false));
+            }
+        }
+
+        for(int i = 0; i < this.getForewingStripes().length; i++){
+            if(this.getForewingStripes()[i]){
+                this.patterns.add(WingPattern.stripe(i,this.getForewingShape(),this.getWingStripeColour(i),true));
+                }
+        }
+        for(int i = 0; i < this.getHindwingStripes().length; i++){
+            if(this.getHindwingStripes()[i]){
+                this.patterns.add(WingPattern.stripe(i,this.getHindwingShape(),this.getWingStripeColour(i),false));
+            }
+        }
+
+        for(int i = 0; i < this.getForewingSpots().length; i++){
+            if(this.getForewingSpots()[i] > 0){
+                this.patterns.add(WingPattern.spots(i,this.getForewingSpots()[i],this.getForewingShape(),this.getWingSpotColour(),true));
+            }
+        }
+        for(int i = 0; i < this.getHindwingSpots().length; i++){
+            if(this.getHindwingSpots()[i] > 0){
+                this.patterns.add(WingPattern.spots(i,this.getHindwingSpots()[i],this.getHindwingShape(),this.getWingSpotColour(),false));
+            }
+        }
+
+        for(int i = 0; i < this.getEyeSpots()[0]; i++){
+            this.patterns.add(WingPattern.eyeSpot(i,this.getForewingShape(),this.getEyeSpotColour(i),true));
+        }
+        for(int i = 0; i < this.getEyeSpots()[1]; i++){
+            this.patterns.add(WingPattern.eyeSpot(i,this.getHindwingShape(),this.getEyeSpotColour(i),false));
+        }
+    }
+
     public String getTextureName(){
         if(this.texture == null || !this.getDamageString().equals(this.textureWingDamage)){
             refreshTextureName();
@@ -1166,6 +1215,7 @@ public abstract class AbstractButterflyGenetics extends Animal {
     }
 
     public void refreshTextureName(){
+        this.createPatternListTemp();
         this.texture = new LayeredTexture(this);
         this.textureName = texture.getName();
         this.textureWingDamage = getDamageString();
@@ -1280,6 +1330,17 @@ public abstract class AbstractButterflyGenetics extends Animal {
         output[0] = this.entityData.get(FOREWING_EYE);
         output[1] = this.entityData.get(HINDWING_EYE);
         return output;
+    }
+
+    public int getPatternAmount(){
+        if(this.patterns == null){
+            return 0;
+        } else {
+            return this.patterns.size();
+        }
+    }
+    public WingPattern getPattern(int index){
+        return this.patterns.get(index);
     }
 
 }

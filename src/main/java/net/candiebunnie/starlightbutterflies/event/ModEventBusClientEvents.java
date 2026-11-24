@@ -18,6 +18,7 @@ public class ModEventBusClientEvents {
     @SubscribeEvent
     public static void registerLayer(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(ModModelLayers.BUTTERFLY_LAYER, ButterflyModel::createBodyLayer);
+        event.registerLayerDefinition(ModModelLayers.BUTTERFLY_WING_LAYER, ButterflyModel::createWingLayer);
 
         event.registerLayerDefinition(ModModelLayers.LARVA_LAYER, LarvaModel::createSolidBodyLayer);
         event.registerLayerDefinition(ModModelLayers.LARVA_OUTER_LAYER, LarvaModel::createOuterBodyLayer);
